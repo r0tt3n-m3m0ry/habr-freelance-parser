@@ -9,6 +9,7 @@ try:
 except:
 	print('Установите необходимые модули командой \'$ pip3 install -r requirements.txt\' перед запуском скрипта'); exit()
 
+from datetime import datetime
 import sqlite3
 import random
 import time
@@ -25,6 +26,7 @@ sql = db.cursor()
 sql.execute('''CREATE TABLE IF NOT EXISTS habr (title TEXT, price TEXT, link TEXT)''')
 db.commit()
 
+# os.getenv(vk_phone) - логин VK, os.getenv(vk_pass) - пароль. измените на свои!
 vk_session = vk_api.VkApi(login=os.getenv('vk_phone'), password=os.getenv('vk_pass'), app_id='2685278')
 vk_session.auth()
 
@@ -32,29 +34,33 @@ vk = vk_session.get_api()
 
 print('VK...ok')
 
-while True:
-	habr = bs(requests.get('https://freelance.habr.com/tasks').text, 'html.parser')
-	tasks = habr.find_all('li', {'class': 'content-list__item'})
+try:
+	while True:
+		habr = bs(requests.get('https://freelance.habr.com/tasks').text, 'html.parser')
+		tasks = habr.find_all('li', {'class': 'content-list__item'})
 
-	for task in tasks:
-		title = task.find('a').text
+		for task in tasks:
+			title = task.find('a').text
 
-		try:
-			price = f"{task.find('span', {'class': 'count'}).text}"
-		except:
-			price = 'договорная'
+			try:
+				price = f"{task.find('span', {'class': 'count'}).text}"
+			except:
+				price = 'договорная'
 
-		link = 'https://freelance.habr.com' + task.find('a', href=True)['href']
+			link = 'https://freelance.habr.com' + task.find('a', href=True)['href']
 
-		if (title, price, link) not in sql.execute('''SELECT * FROM habr'''):
-			sql.execute('''INSERT INTO habr VALUES (?, ?, ?)''', (title, price, link))
-			db.commit()
+			if (title, price, link) not in sql.execute('''SELECT * FROM habr'''):
+				sql.execute('''INSERT INTO habr VALUES (?, ?, ?)''', (title, price, link))
+				db.commit()
 
-			send_message(vk, 565312948, f'Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}')
+				# 565312948 - мой VK ID! измените на свой!
+				send_message(vk, 565312948, f"[{datetime.now().strftime('%H:%M:%S')}] Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}")
 
-			print(f'Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}')
+				print(f"\n[{datetime.now().strftime('%H:%M:%S')}] Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}")
 
-			time.sleep(3)
+				time.sleep(3)
 
-	print(f'Жду {int(delay/60)} минут...')
-	time.sleep(delay)
+		print(f"\n[{datetime.now().strftime('%H:%M:%S')}] Жду {int(delay/60)} минут...")
+		time.sleep(delay)
+except KeyboardInterrupt:
+	print('Goodbye! :D'); exit()
