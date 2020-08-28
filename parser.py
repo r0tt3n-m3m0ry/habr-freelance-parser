@@ -68,7 +68,7 @@ try:
 
 				time.sleep(3)
 
-		logging.info('Жду 15 минут...')
+		logging.info('zZz :D zZz')
 		time.sleep(delay)
 except KeyboardInterrupt:
 	print('Goodbye! :D'); exit()
