@@ -18,7 +18,7 @@ import os
 def send_message(vk, receiver_id, content):
 	vk.messages.send(user_id=receiver_id, random_id=random.randint(-999999999999, 999999999999), message=content)
 
-delay = 150
+delay = 450
 
 vk_receivers_ids = [565312948, 611876555]
 
@@ -66,9 +66,10 @@ try:
 
 				logging.info(f"Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}")
 
-				time.sleep(3)
+				time.sleep(10)
 
 		logging.info('zZz :D zZz')
 		time.sleep(delay)
+
 except KeyboardInterrupt:
 	print('Goodbye! :D'); exit()
