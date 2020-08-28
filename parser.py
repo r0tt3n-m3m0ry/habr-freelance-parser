@@ -21,7 +21,7 @@ def send_message(vk, receiver_id, content):
 
 delay = 900
 
-logging.basicConfig(format='\n[%(asctime)s] %(message)s', datefmt='%H:%M:%S')
+logging.basicConfig(format='\n[%(asctime)s] %(message)s', datefmt='%H:%M:%S', level=logging.INFO)
 
 db = sqlite3.connect('parser.db')
 sql = db.cursor()
@@ -34,8 +34,6 @@ vk_session = vk_api.VkApi(login=os.getenv('vk_phone'), password=os.getenv('vk_pa
 vk_session.auth()
 
 vk = vk_session.get_api()
-
-print('VK...ok')
 
 try:
 	while True:
@@ -63,7 +61,7 @@ try:
 
 				time.sleep(3)
 
-		print(f"\n[{datetime.now().strftime('%H:%M:%S')}] Жду {int(delay/60)} минут...")
+		logging.info('Жду 15 минут...')
 		time.sleep(delay)
 except KeyboardInterrupt:
 	print('Goodbye! :D'); exit()
