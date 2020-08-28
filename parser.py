@@ -10,6 +10,7 @@ except:
 	print('Установите необходимые модули командой \'$ pip3 install -r requirements.txt\' перед запуском скрипта'); exit()
 
 from datetime import datetime
+import logging
 import sqlite3
 import random
 import time
@@ -19,6 +20,8 @@ def send_message(vk, receiver_id, content):
 	vk.messages.send(user_id=receiver_id, random_id=random.randint(-999999999999, 999999999999), message=content)
 
 delay = 900
+
+logging.basicConfig(format='\n[%(asctime)s] %(message)s', datefmt='%H:%M:%S')
 
 db = sqlite3.connect('parser.db')
 sql = db.cursor()
@@ -56,7 +59,7 @@ try:
 				# 565312948 - мой VK ID! измените на свой!
 				send_message(vk, 565312948, f"[{datetime.now().strftime('%H:%M:%S')}] Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}")
 
-				print(f"\n[{datetime.now().strftime('%H:%M:%S')}] Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}")
+				logging.info(f"Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}")
 
 				time.sleep(3)
 
