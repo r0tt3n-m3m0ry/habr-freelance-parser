@@ -9,8 +9,7 @@ try:
 except:
 	print('Установите необходимые модули командой \'$ pip3 install -r requirements.txt\' перед запуском скрипта'); exit()
 
-from datetime import datetime
-import logging
+import logging # thanks to @MadNike ;>
 import sqlite3
 import random
 import time
@@ -19,7 +18,9 @@ import os
 def send_message(vk, receiver_id, content):
 	vk.messages.send(user_id=receiver_id, random_id=random.randint(-999999999999, 999999999999), message=content)
 
-delay = 900
+delay = 150
+
+vk_receiver_id = 565312948
 
 logging.basicConfig(format='\n[%(asctime)s] %(message)s', datefmt='%H:%M:%S', level=logging.INFO)
 
@@ -29,9 +30,15 @@ sql = db.cursor()
 sql.execute('''CREATE TABLE IF NOT EXISTS habr (title TEXT, price TEXT, link TEXT)''')
 db.commit()
 
-# os.getenv(vk_phone) - логин VK, os.getenv(vk_pass) - пароль. измените на свои!
-vk_session = vk_api.VkApi(login=os.getenv('vk_phone'), password=os.getenv('vk_pass'), app_id='2685278')
-vk_session.auth()
+try:
+	vk_session = vk_api.VkApi(login=input('VK login: '), password=input('VK password: '), app_id='2685278', auth_handler = lambda: [input('VK 2FA code: '), False])
+	vk_session.auth()
+except vk_api.exceptions.LoginRequired:
+	print('Логин не может быть пустым!')
+except vk_api.exceptions.PasswordRequired:
+	print('Пароль не может быть пустым!')
+except vk_api.exceptions.BadPassword:
+	print('Неверный пароль!')
 
 vk = vk_session.get_api()
 
@@ -55,7 +62,7 @@ try:
 				db.commit()
 
 				# 565312948 - мой VK ID! измените на свой!
-				send_message(vk, 565312948, f"[{datetime.now().strftime('%H:%M:%S')}] Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}")
+				send_message(vk, vk_receiver_id, f"Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}")
 
 				logging.info(f"Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}")
 
