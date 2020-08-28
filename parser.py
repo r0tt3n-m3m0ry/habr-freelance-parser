@@ -20,7 +20,7 @@ def send_message(vk, receiver_id, content):
 
 delay = 150
 
-vk_receiver_id = 565312948
+vk_receivers_ids = [565312948, 611876555]
 
 logging.basicConfig(format='\n[%(asctime)s] %(message)s', datefmt='%H:%M:%S', level=logging.INFO)
 
@@ -61,8 +61,8 @@ try:
 				sql.execute('''INSERT INTO habr VALUES (?, ?, ?)''', (title, price, link))
 				db.commit()
 
-				# 565312948 - мой VK ID! измените на свой!
-				send_message(vk, vk_receiver_id, f"Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}")
+				for vk_receiver_id in vk_receivers_ids:
+					send_message(vk, vk_receiver_id, f"Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}")
 
 				logging.info(f"Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}")
 
