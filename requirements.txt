@@ -1,3 +1,4 @@
 BeautifulSoup4
 requests
 vk_api
+plyer
