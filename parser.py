@@ -18,9 +18,18 @@ import time
 def send_message(vk, receiver_id, content):
 	vk.messages.send(user_id=receiver_id, random_id=random.randint(-999999999999, 999999999999), message=content)
 
+def update_receivers_id():
+	global vk_receivers_ids; vk_receivers_ids = []
+	with open('receivers.txt') as file_receivers:
+		for vk_receiver_id in file_receivers:
+			if vk_receiver_id[0] != '#': 
+				vk_receivers_ids.append(vk_receiver_id.strip())
+
 delay = 450
 
-vk_receivers_ids = [565312948, 611876555]
+vk_receivers_ids = []
+
+vk_token = '2782fbc696d53906eabb6522aea6512cb88ddb546f1f498fc86cb8598766e11ed1d18cad659e2924b4827'
 
 logging.basicConfig(format='\n[%(asctime)s] %(message)s', datefmt='%H:%M:%S', level=logging.INFO)
 
@@ -31,23 +40,12 @@ sql.execute('''CREATE TABLE IF NOT EXISTS habr (title TEXT, price TEXT, link TEX
 db.commit()
 
 try:
-	while True:
-		try:
-			vk_session = vk_api.VkApi(login=input('VK login: '), password=input('VK password: '), app_id='2685278', auth_handler = lambda: [input('VK 2FA code: '), False])
-			vk_session.auth()
-		except vk_api.exceptions.LoginRequired:
-			print('Логин не может быть пустым!')
-		except vk_api.exceptions.PasswordRequired:
-			print('Пароль не может быть пустым!')
-		except vk_api.exceptions.BadPassword:
-			print('Неверный пароль!')
-		except vk_api.exceptions.Captcha: # captcha
-			print('Слишком много запросов за последнее время. Подождите 5 секунд...'); time.sleep(5)
-		else:
-			logging.info('VK login successful!'); break
+	vk_session = vk_api.VkApi(token=vk_token)
 	vk = vk_session.get_api()
 
 	while True:
+		update_receivers_id()
+
 		habr = bs(requests.get('https://freelance.habr.com/tasks').text, 'html.parser')
 		tasks = habr.find_all('li', {'class': 'content-list__item'})
 
@@ -65,12 +63,16 @@ try:
 				sql.execute('''INSERT INTO habr VALUES (?, ?, ?)''', (title, price, link))
 				db.commit()
 
-				#for vk_receiver_id in vk_receivers_ids:
-					#send_message(vk, vk_receiver_id, f"Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}")
+				# plyer.notification.notify(app_name='Habr Freelance Parser', title='Habr Freelance Parser', message=f'Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}')
+
+				for vk_receiver_id in vk_receivers_ids:
+					try:
+						send_message(vk, vk_receiver_id, f"Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}")
+						logging.error(f'Отправлено сообщение для vk.com/id{vk_receiver_id}')
+					except:
+						logging.error(f'Не удалось отправить сообщение для vk.com/id{vk_receiver_id}')
 
 				logging.info(f"Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}")
-
-				plyer.notification.notify(app_name='Habr Freelance Parser', title='Habr Freelance Parser', message=f'Найден новый заказ: {title}. Стоимость работы: {price}. Ссылка: {link}')
 
 				time.sleep(10)
 
@@ -78,4 +80,4 @@ try:
 		time.sleep(delay)
 
 except KeyboardInterrupt:
-	print('Goodbye! :D'); exit()
+	print('\nGoodbye! :D\n'); exit()
