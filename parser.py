@@ -2,32 +2,35 @@
 # Habr freelance parser
 # Created by r0tt3n-m3m0ry
 
-try:
-	from bs4 import BeautifulSoup as bs
-	import requests
-	import vk_api
-	import plyer # system notifications 
-except:
-	print('Установите необходимые модули командой \'$ pip3 install -r requirements.txt\' перед запуском скрипта'); exit()
-
 import logging # thanks to @MadNike ;>
 import sqlite3
 import random
 import time
+import os
+
+try:
+	from bs4 import BeautifulSoup as bs
+	import requests
+	import vk_api
+
+	if os.name == 'nt':
+		import plyer # system notifications 
+except:
+	print('Установите необходимые модули командой \'$ pip3 install -r requirements.txt\' перед запуском скрипта'); exit()
 
 def send_message(vk, receiver_id, content):
 	vk.messages.send(user_id=receiver_id, random_id=random.randint(-999999999999, 999999999999), message=content)
 
 def update_receivers_id():
-	global vk_receivers_ids; vk_receivers_ids = []
+	global vk_receivers_ids
+	vk_receivers_ids = []
+
 	with open('receivers.txt') as file_receivers:
 		for vk_receiver_id in file_receivers:
-			if vk_receiver_id[0] != '#': 
+			if vk_receiver_id[0] != '#' and vk_receiver_id.strip() != '\n': 
 				vk_receivers_ids.append(vk_receiver_id.strip())
 
 delay = 450
-
-vk_receivers_ids = []
 
 vk_token = '2782fbc696d53906eabb6522aea6512cb88ddb546f1f498fc86cb8598766e11ed1d18cad659e2924b4827'
 
@@ -80,4 +83,4 @@ try:
 		time.sleep(delay)
 
 except KeyboardInterrupt:
-	print('\nGoodbye! :D\n'); exit()
+	print('\nДо встречи :D\n'); exit()
