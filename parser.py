@@ -27,7 +27,7 @@ def update_receivers_id():
 
 	with open('receivers.txt') as file_receivers:
 		for vk_receiver_id in file_receivers:
-			if vk_receiver_id[0] != '#' and vk_receiver_id.strip() != '\n': 
+			if vk_receiver_id[0] != '#' and vk_receiver_id.strip() != '': 
 				vk_receivers_ids.append(vk_receiver_id.strip())
 
 delay = 450
