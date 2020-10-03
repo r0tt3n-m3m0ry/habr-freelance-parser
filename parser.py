@@ -19,7 +19,7 @@ except:
 	print('Установите необходимые модули командой \'$ pip3 install -r requirements.txt\' перед запуском скрипта'); exit()
 
 def send_message(vk, receiver_id, content):
-	vk.messages.send(user_id=receiver_id, random_id=random.randint(-999999999999, 999999999999), message=content)
+	vk.messages.send(user_id=receiver_id, random_id=random.randint(-999999999999, 999999999999), message=content, attachment='photo-198486717_457239018')
 
 def update_receivers_id():
 	global vk_receivers_ids
